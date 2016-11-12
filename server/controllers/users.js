@@ -1,4 +1,5 @@
 var mongoose = require('mongoose'),
+    Request = mongoose.model('Request'),
     User = mongoose.model('User'),
     helpers = require('../helpers');
 
@@ -57,7 +58,7 @@ exports.update = function (request, response, next) {
     }
 
     var id = request.params['_id'];
-    User.update({_id: id}, request.body, function (error, data) {
+    User.findByIdAndUpdate(id, request.body, function (error, data) {
         helpers.genResponse(response, error, request.body, next);
     });
 };
@@ -76,6 +77,29 @@ exports.remove = function (request, response, next) {
 
     var id = request.params['_id'];
     User.remove({_id: id}, function (error) {
-        helpers.genResponse(response, error, id, next);
-    })
+        if (!error) {
+            Request.remove({userId: id}, function (error) {
+                helpers.genResponse(response, error, id, next);
+            });
+        } else helpers.genResponse(response, error, id, next);
+    });
+};
+
+/**
+ * Logs in a user
+ * @param {Object} request HTTP request
+ * @param {Object} response HTTP response
+ * @param {function} next Callback
+ */
+exports.login = function (request, response, next) {
+    var error = helpers.checkRequestParams(request.params, response, ['email', 'password']);
+    if (error) {
+        return next(error);
+    }
+
+    var email = request.params['email'],
+        password = request.params['password'];
+    User.findOne({email: email, password: password}, function (error, data) {
+        helpers.genResponse(response, error, data, next);
+    });
 };

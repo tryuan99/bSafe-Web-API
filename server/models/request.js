@@ -11,6 +11,10 @@ var RequestSchema = new Schema({
      */
     time: {type: Date, default: Date.now},
     /**
+     * @property {String} matchId
+     */
+    matchId: {type: Schema.Types.ObjectId},
+    /**
      * @property {Number} originLat
      */
     originLat: {type: Number},

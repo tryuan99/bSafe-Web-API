@@ -26,12 +26,16 @@ module.exports = function (app) {
         users.add(request, response, next);
     });
 
-    app.put('/users/:_id', function(request, response, next) {
+    app.put('/users/:_id', function (request, response, next) {
         users.update(request, response, next);
     });
 
     app.delete('/users/:_id', function (request, response, next) {
         users.remove(request, response, next);
+    });
+
+    app.post('/users/login', function (request, response, next) {
+        users.login(request, response, next);
     });
 
     // Requests
@@ -40,7 +44,11 @@ module.exports = function (app) {
         requests.all(request, response, next);
     });
 
-    app.get('/requests/:userId', function (request, response, next) {
+    app.get('/requests/:_id', function (request, response, next) {
+        requests.one(request, response, next);
+    });
+
+    app.get('/requests/user/:userId', function (request, response, next) {
         requests.user(request, response, next);
     });
 
@@ -48,12 +56,38 @@ module.exports = function (app) {
         requests.add(request, response, next);
     });
 
-    app.put('/requests/:userId/:_id', function(request, response, next) {
+    app.put('/requests/:_id', function (request, response, next) {
         requests.update(request, response, next);
     });
 
-    app.delete('/requests/:userId/:_id', function (request, response, next) {
+    app.delete('/requests/:_id', function (request, response, next) {
         requests.remove(request, response, next);
-    })
+    });
+
+    // Matches
+
+    app.get('/matches', function (request, response, next) {
+        matches.all(request, response, next);
+    });
+
+    app.get('/matches/:_id', function (request, response, next) {
+        matches.one(request, response, next);
+    });
+
+    app.get('/matches/request/:requestId', function (request, response, next) {
+        matches.request(request, response, next);
+    });
+
+    app.post('/matches/:requestId1/:requestId2', function (request, response, next) {
+        matches.add(request, response, next);
+    });
+
+    app.put('/matches/:_id', function (request, response, next) {
+        matches.update(request, response, next);
+    });
+
+    app.delete('/matches/:_id', function (request, response, next) {
+        matches.remove(request, response, next);
+    });
 
 };

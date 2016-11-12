@@ -4,19 +4,19 @@ var mongoose = require('mongoose'),
     helpers = require('../helpers');
 
 /**
- * Get all requests
- * @param {Object} request HTTP request
+ * Get all matches
+ * @param {Object} request HTTP match
  * @param {Object} response HTTP response
  * @param {function} next Callback
  */
 exports.all = function (request, response, next) {
-    Request.find(function (error, data) {
+    Match.find(function (error, data) {
         helpers.genResponse(response, error, data, next);
     });
 };
 
 /**
- * Get one request by id
+ * Get one match by id
  * @param {Object} request HTTP request
  * @param {Object} response HTTP response
  * @param {function} next Callback
@@ -28,50 +28,50 @@ exports.one = function (request, response, next) {
     }
 
     var id = request.params['_id'];
-    Request.findById(id, function (error, data) {
+    Match.findById(id, function (error, data) {
         helpers.genResponse(response, error, data, next);
     });
 };
 
 /**
- * Get requests by userId
- * @param {Object} request HTTP request
+ * Get matches by requestId
+ * @param {Object} request HTTP match
  * @param {Object} response HTTP response
  * @param {function} next Callback
  */
-exports.user = function (request, response, next) {
-    var error = helpers.checkRequestParams(request.params, response, ['userId']);
+exports.request = function (request, response, next) {
+    var error = helpers.checkRequestParams(request.params, response, ['requestId']);
     if (error) {
         return next(err);
     }
 
-    var userId = request.params['userId'];
-    Request.find({userId: userId}, function (error, data) {
+    var requestId = match.params['requestId'];
+    Match.find({requestId: requestId}, function (error, data) {
         helpers.genResponse(response, error, data, next);
     });
 };
 
 /**
- * Add a new request
- * @param {Object} request HTTP request
+ * Add a new match
+ * @param {Object} request HTTP match
  * @param {Object} response HTTP response
  * @param {function} next Callback
  */
 exports.add = function (request, response, next) {
-    var error = helpers.checkRequestParams(request.params, response, ['userId']);
+    var error = helpers.checkRequestParams(request.params, response, ['requestId1, requestId2']);
     if (error) {
         return next(error);
     }
 
-    request.body.userId = request.params['userId'];
-    new Request(request.body).save(function (error, data) {
+    request.body['requestIds'] = [request.params['requestId1'], request.params['requestId2']];
+    new Match(request.body).save(function (error, data) {
         helpers.genResponse(response, error, data, next);
     });
 };
 
 /**
- * Update a request
- * @param {Object} request HTTP request
+ * Update a match
+ * @param {Object} request HTTP match
  * @param {Object} response HTTP response
  * @param {function} next Callback
  */
@@ -82,41 +82,34 @@ exports.update = function (request, response, next) {
     }
 
     var id = request.params['_id'];
-    Request.findByIdAndUpdate(id, request.body, function (error, data) {
+    Match.findByIdAndUpdate(id, request.body, function (error, data) {
         helpers.genResponse(response, error, request.body, next);
     });
 };
 
 /**
- * Remove a request
- * @param {Object} request HTTP request
+ * Remove a match
+ * @param {Object} request HTTP match
  * @param {Object} response HTTP response
  * @param {function} next Callback
  */
 exports.remove = function (request, response, next) {
-    var error = helpers.checkRequestParams(request.params, response, ['_id']);
+    var error = helpers.checkmatchParams(request.params, response, ['_id']);
     if (error) {
         return next(error);
     }
 
     var id = request.params['_id'];
-    Request.findById(id, function (error, request) {
+    Match.findByIdAndRemove(id, function (error) {
         if (!error) {
-            if (request.matchId) {
-                Match.findById(request.matchId, function (error, match) {
-                    if (!error) {
-                        for (var i = 0; i < match.requestIds.length; i++) {
-                            var requestId = match.requestIds[i];
-                            if (requestId != id) {
-                                Request.findByIdAndUpdate(requestId, {matchId: null});
-                            }
-                        }
-                        match.remove();
-                    } else helpers.genResponse(response, error, id, next);
-                });
-            }
-            request.remove(function (error) {
-                helpers.genResponse(response, error, id, next);
+            Request.find({matchId: id}, function (error, requests) {
+                if (!error) {
+                    for (var i = 0; i < requests.length; i++) {
+                        requests[i]['matchId'] = null;
+                        requests[i].save();
+                    }
+                    helpers.genResponse(response, error, id, next);
+                } else helpers.genResponse(response, error, id, next);
             });
         } else helpers.genResponse(response, error, id, next);
     });

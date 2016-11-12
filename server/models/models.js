@@ -1,4 +1,5 @@
-var request = require('./request'),
+var match = require('./match'),
+    request = require('./request'),
     user = require('./user');
 
 module.exports = {
