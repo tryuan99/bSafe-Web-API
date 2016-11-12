@@ -22,7 +22,7 @@ exports.all = function (request, response, next) {
  * @param {function} next Callback
  */
 exports.one = function (request, response, next) {
-    var error = http.checkRequestParams(request.params, response, ['_id']);
+    var error = http.checkRequestParams(request.params, ['_id']);
     if (error) {
         return next(err);
     }
@@ -40,7 +40,7 @@ exports.one = function (request, response, next) {
  * @param {function} next Callback
  */
 exports.user = function (request, response, next) {
-    var error = http.checkRequestParams(request.params, response, ['userId']);
+    var error = http.checkRequestParams(request.params, ['userId']);
     if (error) {
         return next(err);
     }
@@ -71,7 +71,7 @@ exports.add = function (request, response, next) {
  * @param {function} next Callback
  */
 exports.update = function (request, response, next) {
-    var error = http.checkRequestParams(request.params, response, ['_id']);
+    var error = http.checkRequestParams(request.params, ['_id']);
     if (error) {
         return next(error);
     }
@@ -89,7 +89,7 @@ exports.update = function (request, response, next) {
  * @param {function} next Callback
  */
 exports.remove = function (request, response, next) {
-    var error = http.checkRequestParams(request.params, response, ['_id']);
+    var error = http.checkRequestParams(request.params, ['_id']);
     if (error) {
         return next(error);
     }
