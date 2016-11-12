@@ -1,7 +1,7 @@
 var mongoose = require('mongoose'),
     Request = mongoose.model('Request'),
     User = mongoose.model('User'),
-    helpers = require('../helpers');
+    http = require('../http');
 
 /**
  * Get all users
@@ -11,7 +11,7 @@ var mongoose = require('mongoose'),
  */
 exports.all = function (request, response, next) {
     User.find(function (error, data) {
-        helpers.genResponse(response, error, data, next);
+        http.genResponse(response, error, data, next);
     });
 };
 
@@ -22,14 +22,14 @@ exports.all = function (request, response, next) {
  * @param {function} next Callback
  */
 exports.one = function (request, response, next) {
-    var error = helpers.checkRequestParams(request.params, response, [':_id']);
+    var error = http.checkRequestParams(request.params, response, [':_id']);
     if (error) {
         return next(error);
     }
 
     var id = request.params['_id'];
     User.findById(id, function (error, data) {
-        helpers.genResponse(response, error, data, next);
+        http.genResponse(response, error, data, next);
     });
 };
 
@@ -41,7 +41,7 @@ exports.one = function (request, response, next) {
  */
 exports.add = function (request, response, next) {
     new User(request.body).save(function (error, data) {
-        helpers.genResponse(response, error, data, next);
+        http.genResponse(response, error, data, next);
     })
 };
 
@@ -52,14 +52,14 @@ exports.add = function (request, response, next) {
  * @param {function} next Callback
  */
 exports.update = function (request, response, next) {
-    var error = helpers.checkRequestParams(request.params, response, ['_id']);
+    var error = http.checkRequestParams(request.params, response, ['_id']);
     if (error) {
         return next(error);
     }
 
     var id = request.params['_id'];
     User.findByIdAndUpdate(id, request.body, function (error, data) {
-        helpers.genResponse(response, error, request.body, next);
+        http.genResponse(response, error, request.body, next);
     });
 };
 
@@ -70,7 +70,7 @@ exports.update = function (request, response, next) {
  * @param {function} next Callback
  */
 exports.remove = function (request, response, next) {
-    var error = helpers.checkRequestParams(request.params, response, ['_id']);
+    var error = http.checkRequestParams(request.params, response, ['_id']);
     if (error) {
         return next(error);
     }
@@ -79,9 +79,9 @@ exports.remove = function (request, response, next) {
     User.remove({_id: id}, function (error) {
         if (!error) {
             Request.remove({userId: id}, function (error) {
-                helpers.genResponse(response, error, id, next);
+                http.genResponse(response, error, id, next);
             });
-        } else helpers.genResponse(response, error, id, next);
+        } else http.genResponse(response, error, id, next);
     });
 };
 
@@ -92,7 +92,7 @@ exports.remove = function (request, response, next) {
  * @param {function} next Callback
  */
 exports.login = function (request, response, next) {
-    var error = helpers.checkRequestParams(request.params, response, ['email', 'password']);
+    var error = http.checkRequestParams(request.params, response, ['email', 'password']);
     if (error) {
         return next(error);
     }
@@ -100,6 +100,6 @@ exports.login = function (request, response, next) {
     var email = request.params['email'],
         password = request.params['password'];
     User.findOne({'email': email, 'password': password}, function (error, data) {
-        helpers.genResponse(response, error, data, next);
+        http.genResponse(response, error, data, next);
     });
 };

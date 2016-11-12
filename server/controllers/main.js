@@ -1,5 +1,5 @@
-var helpers = require('../helpers');
+var http = require('../http');
 
 exports.default = function (request, response, next) {
-    helpers.genResponse(response, null, {message: 'Success'}, next);
+    http.genResponse(response, null, {message: 'Success'}, next);
 };

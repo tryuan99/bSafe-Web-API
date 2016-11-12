@@ -1,7 +1,7 @@
 var mongoose = require('mongoose'),
     Match = mongoose.model('Match'),
     Request = mongoose.model('Request'),
-    helpers = require('../helpers');
+    http = require('../http');
 
 /**
  * Get all requests
@@ -11,7 +11,7 @@ var mongoose = require('mongoose'),
  */
 exports.all = function (request, response, next) {
     Request.find(function (error, data) {
-        helpers.genResponse(response, error, data, next);
+        http.genResponse(response, error, data, next);
     });
 };
 
@@ -22,14 +22,14 @@ exports.all = function (request, response, next) {
  * @param {function} next Callback
  */
 exports.one = function (request, response, next) {
-    var error = helpers.checkRequestParams(request.params, response, ['_id']);
+    var error = http.checkRequestParams(request.params, response, ['_id']);
     if (error) {
         return next(err);
     }
 
     var id = request.params['_id'];
     Request.findById(id, function (error, data) {
-        helpers.genResponse(response, error, data, next);
+        http.genResponse(response, error, data, next);
     });
 };
 
@@ -40,14 +40,14 @@ exports.one = function (request, response, next) {
  * @param {function} next Callback
  */
 exports.user = function (request, response, next) {
-    var error = helpers.checkRequestParams(request.params, response, ['userId']);
+    var error = http.checkRequestParams(request.params, response, ['userId']);
     if (error) {
         return next(err);
     }
 
     var userId = request.params['userId'];
     Request.find({'userId': userId}, function (error, data) {
-        helpers.genResponse(response, error, data, next);
+        http.genResponse(response, error, data, next);
     });
 };
 
@@ -58,14 +58,9 @@ exports.user = function (request, response, next) {
  * @param {function} next Callback
  */
 exports.add = function (request, response, next) {
-    var error = helpers.checkRequestParams(request.params, response, ['userId']);
-    if (error) {
-        return next(error);
-    }
-
     request.body.userId = request.params['userId'];
     new Request(request.body).save(function (error, data) {
-        helpers.genResponse(response, error, data, next);
+        http.genResponse(response, error, data, next);
     });
 };
 
@@ -76,14 +71,14 @@ exports.add = function (request, response, next) {
  * @param {function} next Callback
  */
 exports.update = function (request, response, next) {
-    var error = helpers.checkRequestParams(request.params, response, ['_id']);
+    var error = http.checkRequestParams(request.params, response, ['_id']);
     if (error) {
         return next(error);
     }
 
     var id = request.params['_id'];
     Request.findByIdAndUpdate(id, request.body, function (error, data) {
-        helpers.genResponse(response, error, request.body, next);
+        http.genResponse(response, error, request.body, next);
     });
 };
 
@@ -94,7 +89,7 @@ exports.update = function (request, response, next) {
  * @param {function} next Callback
  */
 exports.remove = function (request, response, next) {
-    var error = helpers.checkRequestParams(request.params, response, ['_id']);
+    var error = http.checkRequestParams(request.params, response, ['_id']);
     if (error) {
         return next(error);
     }
@@ -112,12 +107,12 @@ exports.remove = function (request, response, next) {
                             }
                         }
                         match.remove();
-                    } else helpers.genResponse(response, error, id, next);
+                    } else http.genResponse(response, error, id, next);
                 });
             }
             request.remove(function (error) {
-                helpers.genResponse(response, error, id, next);
+                http.genResponse(response, error, id, next);
             });
-        } else helpers.genResponse(response, error, id, next);
+        } else http.genResponse(response, error, id, next);
     });
 };

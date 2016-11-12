@@ -53,7 +53,7 @@ module.exports = function (app) {
         requests.user(request, response, next);
     });
 
-    app.post('/requests/:userId', function (request, response, next) {
+    app.post('/requests', function (request, response, next) {
         requests.add(request, response, next);
     });
 
@@ -79,7 +79,7 @@ module.exports = function (app) {
         matches.request(request, response, next);
     });
 
-    app.post('/matches', function (request, response, next) {
+    app.post('/matches/:requestId', function (request, response, next) {
         matches.add(request, response, next);
     });
 

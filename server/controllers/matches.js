@@ -1,7 +1,8 @@
 var mongoose = require('mongoose'),
     Match = mongoose.model('Match'),
     Request = mongoose.model('Request'),
-    helpers = require('../helpers');
+    http = require('../http'),
+    match = require('../algorithms/match');
 
 /**
  * Get all matches
@@ -11,7 +12,7 @@ var mongoose = require('mongoose'),
  */
 exports.all = function (request, response, next) {
     Match.find(function (error, data) {
-        helpers.genResponse(response, error, data, next);
+        http.genResponse(response, error, data, next);
     });
 };
 
@@ -22,14 +23,14 @@ exports.all = function (request, response, next) {
  * @param {function} next Callback
  */
 exports.one = function (request, response, next) {
-    var error = helpers.checkRequestParams(request.params, response, ['_id']);
+    var error = http.checkRequestParams(request.params, response, ['_id']);
     if (error) {
         return next(err);
     }
 
     var id = request.params['_id'];
     Match.findById(id, function (error, data) {
-        helpers.genResponse(response, error, data, next);
+        http.genResponse(response, error, data, next);
     });
 };
 
@@ -40,14 +41,14 @@ exports.one = function (request, response, next) {
  * @param {function} next Callback
  */
 exports.request = function (request, response, next) {
-    var error = helpers.checkRequestParams(request.params, response, ['requestId']);
+    var error = http.checkRequestParams(request.params, response, ['requestId']);
     if (error) {
         return next(err);
     }
 
-    var requestId = match.params['requestId'];
+    var requestId = request.params['requestId'];
     Match.find({'requestId': requestId}, function (error, data) {
-        helpers.genResponse(response, error, data, next);
+        http.genResponse(response, error, data, next);
     });
 };
 
@@ -58,38 +59,40 @@ exports.request = function (request, response, next) {
  * @param {function} next Callback
  */
 exports.add = function (request, response, next) {
-    var error = helpers.checkRequestParams(request.params, response, ['requestId1, requestId2']);
+    var error = http.checkRequestParams(request.params, response, ['requestId']);
     if (error) {
         return next(error);
     }
 
-    request.body.requestIds = [request.params['requestId1'], request.params['requestId2']];
-    new Match(request.body).save(function (error, match) {
+    var requestId = request.params['requestId'];
+    Request.find(function (error, requests) {
         if (!error) {
+            var currentRequest = requests.find(function (request) {
+                return request._id == requestId;
+            });
+            var matchingRequest = match.findMatchingRequest(currentRequest, requests.filter(function (request) {
+                return request._id != requestId;
+            }));
+
+            request.body.requestIds = [currentRequest._id, matchingRequest._id];
             // Meetup location is average of the two origins
-            var meetupLat = 0,
-                meetupLng = 0;
-            var actions = match.requestIds.map(function (requestId) {
-                return Request.findById(requestId, function (error, request) {
-                    if (!error) {
-                        meetupLat += request.originLat;
-                        meetupLng += request.originLng;
-                        request.matchId = match._id;
-                        request.save();
-                    }
-                }).exec();
-            });
-            Promise.all(actions).then(function (resolve, reject) {
-                if (!reject) {
-                    match.meetupLat = meetupLat / 2;
-                    match.meetupLng = meetupLng / 2;
-                    Match.findByIdAndUpdate(match._id, match, function (error, data) {
-                        helpers.genResponse(response, error, match, next);
+            request.body.meetupLat = (currentRequest.originLat + matchingRequest.originLat) / 2;
+            request.body.meetupLng = (currentRequest.originLng + matchingRequest.originLng) / 2;
+            new Match(request.body).save(function (error, match) {
+                if (!error) {
+                    currentRequest.matchId = match._id;
+                    matchingRequest.matchId = match._id;
+                    currentRequest.save(function (error, data) {
+                        if (!error) {
+                            matchingRequest.save(function (error, data) {
+                                http.genResponse(response, error, match, next);
+                            });
+                        } else http.genResponse(response, error, match, next);
                     });
-                } else helpers.genResponse(response, reject, match, next);
+                } else http.genResponse(response, error, match, next);
             });
-        } else helpers.genResponse(response, error, match, next);
-    });
+        }
+    })
 };
 
 /**
@@ -99,14 +102,14 @@ exports.add = function (request, response, next) {
  * @param {function} next Callback
  */
 exports.update = function (request, response, next) {
-    var error = helpers.checkRequestParams(request.params, response, ['_id']);
+    var error = http.checkRequestParams(request.params, response, ['_id']);
     if (error) {
         return next(error);
     }
 
     var id = request.params['_id'];
     Match.findByIdAndUpdate(id, request.body, function (error, data) {
-        helpers.genResponse(response, error, request.body, next);
+        http.genResponse(response, error, request.body, next);
     });
 };
 
@@ -117,7 +120,7 @@ exports.update = function (request, response, next) {
  * @param {function} next Callback
  */
 exports.remove = function (request, response, next) {
-    var error = helpers.checkRequestParams(request.params, response, ['_id']);
+    var error = http.checkRequestParams(request.params, response, ['_id']);
     if (error) {
         return next(error);
     }
@@ -126,8 +129,8 @@ exports.remove = function (request, response, next) {
     Match.findByIdAndRemove(id, function (error) {
         if (!error) {
             Request.update({'matchId': id}, {'matchId': null}, {'multi': true}, function (error, data) {
-                helpers.genResponse(response, error, id, next);
+                http.genResponse(response, error, id, next);
             });
-        } else helpers.genResponse(response, error, id, next);
+        } else http.genResponse(response, error, id, next);
     });
 };

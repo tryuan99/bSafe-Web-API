@@ -1,4 +1,4 @@
-var helpers = require('../helpers');
+var http = require('../http');
 
 module.exports = function (app) {
 
@@ -13,7 +13,7 @@ module.exports = function (app) {
     app.use(function (error, request, response, next) {
         var status = error.status || 500;
         var message = error.message;
-        helpers.sendResponse(response, status, {error: message});
+        http.sendResponse(response, status, {error: message});
     });
 
 };
