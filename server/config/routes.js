@@ -35,7 +35,7 @@ module.exports = function (app) {
         users.remove(request, response, next);
     });
 
-    app.get('/users/login/:email/:password', function (request, response, next) {
+    app.post('/users/login', function (request, response, next) {
         users.login(request, response, next);
     });
 
