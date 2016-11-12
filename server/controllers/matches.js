@@ -64,8 +64,25 @@ exports.add = function (request, response, next) {
     }
 
     request.body['requestIds'] = [request.params['requestId1'], request.params['requestId2']];
-    new Match(request.body).save(function (error, data) {
-        helpers.genResponse(response, error, data, next);
+    new Match(request.body).save(function (error, match) {
+        if (!error) {
+            // Meetup location is average of the two origins
+            var meetupLat = 0,
+                meetupLng = 0;
+            Request.find({id: {$in: [request.params['requestId1'], request.params['requestId2']]}}, function (error, requests) {
+                for (var i = 0; i < requests.length; i++) {
+                    meetupLat += requests[i].originLat;
+                    meetupLng += requests[i].originLng;
+                    requests[i].matchId = data._id;
+                    requests[i].save();
+                }
+            });
+            match.meetupLat = meetupLat / 2;
+            match.meetupLng = meetupLng / 2;
+            Match.findByIdAndUpdate(match._id, match, function (error, data) {
+                helpers.genResponse(response, error, match, next);
+            })
+        } else helpers.genResponse(response, error, data, next);
     });
 };
 
