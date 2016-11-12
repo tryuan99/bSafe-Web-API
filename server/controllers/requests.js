@@ -46,7 +46,7 @@ exports.user = function (request, response, next) {
     }
 
     var userId = request.params['userId'];
-    Request.find({userId: userId}, function (error, data) {
+    Request.find({'userId': userId}, function (error, data) {
         helpers.genResponse(response, error, data, next);
     });
 };

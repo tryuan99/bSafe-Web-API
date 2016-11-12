@@ -4,7 +4,10 @@
   "description": "Web API for bSafe App",
   "repository": "",
   "main": "index.js",
-  "author": "Titan, Jonathan, Ashvin, Jacob, Enrique",
+  "author": "Ashvin, Enrique, Jacob, Jonathan, Titan",
+  "engines": {
+    "node": "6.x"
+  },
   "dependencies": {
     "body-parser": "^1.15.2",
     "express": "^4.14.0",

@@ -79,7 +79,7 @@ module.exports = function (app) {
         matches.request(request, response, next);
     });
 
-    app.post('/matches/:requestId1/:requestId2', function (request, response, next) {
+    app.post('/matches', function (request, response, next) {
         matches.add(request, response, next);
     });
 

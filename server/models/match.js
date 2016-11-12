@@ -3,7 +3,7 @@ var mongoose = require('mongoose'),
 
 var MatchSchema = new Schema({
     /**
-     * @property {[String]} requestIds
+     * @property {[Schema.Types.ObjectId]} requestIds
      */
     requestIds: {type: [Schema.Types.ObjectId], required: true},
     /**

@@ -46,7 +46,7 @@ exports.request = function (request, response, next) {
     }
 
     var requestId = match.params['requestId'];
-    Match.find({requestId: requestId}, function (error, data) {
+    Match.find({'requestId': requestId}, function (error, data) {
         helpers.genResponse(response, error, data, next);
     });
 };
@@ -63,26 +63,32 @@ exports.add = function (request, response, next) {
         return next(error);
     }
 
-    request.body['requestIds'] = [request.params['requestId1'], request.params['requestId2']];
+    request.body.requestIds = [request.params['requestId1'], request.params['requestId2']];
     new Match(request.body).save(function (error, match) {
         if (!error) {
             // Meetup location is average of the two origins
             var meetupLat = 0,
                 meetupLng = 0;
-            Request.find({id: {$in: [request.params['requestId1'], request.params['requestId2']]}}, function (error, requests) {
-                for (var i = 0; i < requests.length; i++) {
-                    meetupLat += requests[i].originLat;
-                    meetupLng += requests[i].originLng;
-                    requests[i].matchId = data._id;
-                    requests[i].save();
-                }
+            var actions = match.requestIds.map(function (requestId) {
+                return Request.findById(requestId, function (error, request) {
+                    if (!error) {
+                        meetupLat += request.originLat;
+                        meetupLng += request.originLng;
+                        request.matchId = match._id;
+                        request.save();
+                    }
+                }).exec();
             });
-            match.meetupLat = meetupLat / 2;
-            match.meetupLng = meetupLng / 2;
-            Match.findByIdAndUpdate(match._id, match, function (error, data) {
-                helpers.genResponse(response, error, match, next);
-            })
-        } else helpers.genResponse(response, error, data, next);
+            Promise.all(actions).then(function (resolve, reject) {
+                if (!reject) {
+                    match.meetupLat = meetupLat / 2;
+                    match.meetupLng = meetupLng / 2;
+                    Match.findByIdAndUpdate(match._id, match, function (error, data) {
+                        helpers.genResponse(response, error, match, next);
+                    });
+                } else helpers.genResponse(response, reject, match, next);
+            });
+        } else helpers.genResponse(response, error, match, next);
     });
 };
 
@@ -111,7 +117,7 @@ exports.update = function (request, response, next) {
  * @param {function} next Callback
  */
 exports.remove = function (request, response, next) {
-    var error = helpers.checkmatchParams(request.params, response, ['_id']);
+    var error = helpers.checkRequestParams(request.params, response, ['_id']);
     if (error) {
         return next(error);
     }
@@ -119,14 +125,8 @@ exports.remove = function (request, response, next) {
     var id = request.params['_id'];
     Match.findByIdAndRemove(id, function (error) {
         if (!error) {
-            Request.find({matchId: id}, function (error, requests) {
-                if (!error) {
-                    for (var i = 0; i < requests.length; i++) {
-                        requests[i]['matchId'] = null;
-                        requests[i].save();
-                    }
-                    helpers.genResponse(response, error, id, next);
-                } else helpers.genResponse(response, error, id, next);
+            Request.update({'matchId': id}, {'matchId': null}, {'multi': true}, function (error, data) {
+                helpers.genResponse(response, error, id, next);
             });
         } else helpers.genResponse(response, error, id, next);
     });

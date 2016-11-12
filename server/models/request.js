@@ -3,7 +3,7 @@ var mongoose = require('mongoose'),
 
 var RequestSchema = new Schema({
     /**
-     * @property (String) name
+     * @property (Schema.Types.ObjectId) userId
      */
     userId: {type: Schema.Types.ObjectId, required: true},
     /**
@@ -11,7 +11,7 @@ var RequestSchema = new Schema({
      */
     time: {type: Date, default: Date.now},
     /**
-     * @property {String} matchId
+     * @property {Schema.Types.ObjectId} matchId
      */
     matchId: {type: Schema.Types.ObjectId},
     /**
@@ -27,7 +27,7 @@ var RequestSchema = new Schema({
      */
     destinationLat: {type: Number},
     /**
-     * @property {Number} destination Lng
+     * @property {Number} destinationLng
      */
     destinationLng: {type: Number}
 });
