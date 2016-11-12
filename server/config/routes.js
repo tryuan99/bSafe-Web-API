@@ -1,6 +1,7 @@
 var express = require('express');
 
 var main = require('../controllers/main'),
+    matches = require('../controllers/matches'),
     requests = require('../controllers/requests'),
     users = require('../controllers/users');
 
