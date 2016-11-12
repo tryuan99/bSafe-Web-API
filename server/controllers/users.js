@@ -99,7 +99,7 @@ exports.login = function (request, response, next) {
 
     var email = request.body['email'],
         password = request.body['password'];
-    User.findOne({'email': email, 'password': password}, function (error, data) {
+    User.findOne({'email': email, 'password': password}, {'email': 0, 'password': 0}, function (error, data) {
         http.genResponse(response, error, data, next);
     });
 };
