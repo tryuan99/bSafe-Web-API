@@ -80,7 +80,7 @@ module.exports = function (app) {
         matches.request(request, response, next);
     });
 
-    app.post('/matches/:requestId', function (request, response, next) {
+    app.post('/matches', function (request, response, next) {
         matches.add(request, response, next);
     });
 
@@ -100,6 +100,10 @@ module.exports = function (app) {
 
     app.get('/markers/:_id', function (request, response, next) {
         markers.one(request, response, next);
+    });
+
+    app.post('/markers', function (request, response, next) {
+        markers.add(request, response, next);
     });
 
     app.get('/markers/update', function (request, response, next) {

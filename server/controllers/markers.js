@@ -33,6 +33,18 @@ exports.one = function (request, response, next) {
 };
 
 /**
+ * Add a new marker
+ * @param request
+ * @param response
+ * @param next
+ */
+exports.add = function (request, response, next) {
+    new Marker(request.body).save(function (error, data) {
+        http.genResponse(response, error, data, next);
+    });
+};
+
+/**
  * Fetch all markers from web API
  * @param request
  * @param response

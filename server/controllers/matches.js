@@ -59,12 +59,12 @@ exports.request = function (request, response, next) {
  * @param {function} next Callback
  */
 exports.add = function (request, response, next) {
-    var error = http.checkRequestParams(request.params, ['requestId']);
+    var error = http.checkRequestParams(request.body, ['requestId']);
     if (error) {
         return next(error);
     }
 
-    var requestId = request.params['requestId'];
+    var requestId = request.body['requestId'];
     Request.find({'matchId': null}, function (error, requests) {
         if (!error) {
             var currentRequest = requests.find(function (request) {
@@ -75,13 +75,14 @@ exports.add = function (request, response, next) {
             }));
 
             if (matchingRequest) {
-                request.body.requestIds = [currentRequest._id, matchingRequest._id];
+                var match = {};
+                match.requestIds = [currentRequest._id, matchingRequest._id];
                 // Meetup location is average of the two origins
                 var meetupLocation = match.findMeetupLocation(currentRequest.originLat, currentRequest.originLng,
                     matchingRequest.originLat, matchingRequest.originLng);
-                request.body.meetupLat = meetupLocation[0];
-                request.body.meetupLng = meetupLocation[1];
-                new Match(request.body).save(function (error, match) {
+                match.meetupLat = meetupLocation[0];
+                match.meetupLng = meetupLocation[1];
+                new Match(match).save(function (error, match) {
                     if (!error) {
                         currentRequest.matchId = match._id;
                         matchingRequest.matchId = match._id;
