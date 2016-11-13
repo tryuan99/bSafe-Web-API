@@ -69,7 +69,7 @@ exports.add = function (request, response, next) {
         if (!error) {
             var currentRequest = requests.find(function (request) {
                 return request._id == requestId;
-            });''
+            });
             var matchingRequest = match.findMatchingRequest(currentRequest, requests.filter(function (request) {
                 return request._id != requestId;
             }));
