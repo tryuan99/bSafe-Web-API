@@ -58,7 +58,6 @@ exports.user = function (request, response, next) {
  * @param {function} next Callback
  */
 exports.add = function (request, response, next) {
-    request.body.userId = request.params['userId'];
     new Request(request.body).save(function (error, data) {
         http.genResponse(response, error, data, next);
     });

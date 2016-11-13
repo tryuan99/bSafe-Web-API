@@ -10,7 +10,7 @@ var mongoose = require('mongoose'),
  * @param {function} next Callback
  */
 exports.all = function (request, response, next) {
-    User.find(function (error, data) {
+    User.find({}, {'email': 0, 'password': 0}, function (error, data) {
         http.genResponse(response, error, data, next);
     });
 };
@@ -22,13 +22,13 @@ exports.all = function (request, response, next) {
  * @param {function} next Callback
  */
 exports.one = function (request, response, next) {
-    var error = http.checkRequestParams(request.params, [':_id']);
+    var error = http.checkRequestParams(request.params, ['_id']);
     if (error) {
         return next(error);
     }
 
     var id = request.params['_id'];
-    User.findById(id, function (error, data) {
+    User.findById(id, {'email': 0, 'password': 0}, function (error, data) {
         http.genResponse(response, error, data, next);
     });
 };
