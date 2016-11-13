@@ -96,21 +96,26 @@ exports.remove = function (request, response, next) {
     var id = request.params['_id'];
     Request.findById(id, function (error, request) {
         if (!error) {
-            if (request.matchId) {
-                Match.findById(request.matchId, function (error, match) {
-                    if (!error) {
-                        for (var i = 0; i < match.requestIds.length; i++) {
-                            var requestId = match.requestIds[i];
-                            if (requestId != id) {
-                                Request.findByIdAndUpdate(requestId, {matchId: null});
-                            }
-                        }
-                        match.remove();
-                    } else http.genResponse(response, error, id, next);
-                });
-            }
+            var matchId = request.matchId;
             request.remove(function (error) {
-                http.genResponse(response, error, id, next);
+                if (!error) {
+                    if (matchId) {
+                        Match.findById(matchId, function (error, match) {
+                            if (!error) {
+                                var actions = match.requestIds.map(function (requestId) {
+                                    return Request.findByIdAndUpdate(requestId, {'matchId': null}).exec();
+                                });
+                                match.remove(function (error) {
+                                    if (!error) {
+                                        Promise.all(actions).then(function (resolve, reject) {
+                                            http.genResponse(response, reject, id, next);
+                                        });
+                                    } else http.genResponse(response, error, id, next);
+                                });
+                            } else http.genResponse(response, error, id, next);
+                        });
+                    } else http.genResponse(response, error, id, next);
+                } else http.genResponse(response, error, id, next);
             });
         } else http.genResponse(response, error, id, next);
     });
