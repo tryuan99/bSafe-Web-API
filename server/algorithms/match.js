@@ -31,10 +31,10 @@ function findMatchingRequest(current, requestList) {
 
 function distance(latitude1, longitude1, latitude2, longitude2) {
     const EARTH_RADIUS = 3958.75; // (in miles)
-    const sinDistLat = Math.sin(((latitude2 - latitude1) * Math.pi / 180) / 2);
-    const sinDistLng = Math.sin(((longitude2 - longitude1) * Math.pi / 180) / 2);
+    const sinDistLat = Math.sin(((latitude2 - latitude1) * Math.PI / 180) / 2);
+    const sinDistLng = Math.sin(((longitude2 - longitude1) * Math.PI / 180) / 2);
 
-    const a = Math.pow(sinDistLat, 2) + Math.pow(sinDistLng, 2) * Math.cos(latitude1 * Math.pi / 180) * Math.cos(latitude2 * Math.pi / 180);
+    const a = Math.pow(sinDistLat, 2) + Math.pow(sinDistLng, 2) * Math.cos(latitude1 * Math.PI / 180) * Math.cos(latitude2 * Math.PI / 180);
     const c = 2 * Math.atan(Math.sqrt(a), Math.sqrt(1 - a));
     return EARTH_RADIUS * c; // (in miles)
 }

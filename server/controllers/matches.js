@@ -74,25 +74,27 @@ exports.add = function (request, response, next) {
                 return request._id != requestId;
             }));
 
-            request.body.requestIds = [currentRequest._id, matchingRequest._id];
-            // Meetup location is average of the two origins
-            var meetupLocation = match.findMeetupLocation(currentRequest.originLat, currentRequest.originLng,
-                matchingRequest.originLat, matchingRequest.originLng);
-            request.body.meetupLat = meetupLocation[0];
-            request.body.meetupLng = meetupLocation[1];
-            new Match(request.body).save(function (error, match) {
-                if (!error) {
-                    currentRequest.matchId = match._id;
-                    matchingRequest.matchId = match._id;
-                    currentRequest.save(function (error, data) {
-                        if (!error) {
-                            matchingRequest.save(function (error, data) {
-                                http.genResponse(response, error, match, next);
-                            });
-                        } else http.genResponse(response, error, match, next);
-                    });
-                } else http.genResponse(response, error, match, next);
-            });
+            if (matchingRequest) {
+                request.body.requestIds = [currentRequest._id, matchingRequest._id];
+                // Meetup location is average of the two origins
+                var meetupLocation = match.findMeetupLocation(currentRequest.originLat, currentRequest.originLng,
+                    matchingRequest.originLat, matchingRequest.originLng);
+                request.body.meetupLat = meetupLocation[0];
+                request.body.meetupLng = meetupLocation[1];
+                new Match(request.body).save(function (error, match) {
+                    if (!error) {
+                        currentRequest.matchId = match._id;
+                        matchingRequest.matchId = match._id;
+                        currentRequest.save(function (error, data) {
+                            if (!error) {
+                                matchingRequest.save(function (error, data) {
+                                    http.genResponse(response, error, match, next);
+                                });
+                            } else http.genResponse(response, error, match, next);
+                        });
+                    } else http.genResponse(response, error, match, next);
+                });
+            } else http.genResponse(response, error, null, next);
         }
     })
 };
