@@ -47,7 +47,7 @@ exports.request = function (request, response, next) {
     }
 
     var requestId = request.params['requestId'];
-    Match.find({'requestId': requestId}, function (error, data) {
+    Match.findOne({'requestId': requestId}, function (error, data) {
         http.genResponse(response, error, data, next);
     });
 };
@@ -65,19 +65,21 @@ exports.add = function (request, response, next) {
     }
 
     var requestId = request.params['requestId'];
-    Request.find(function (error, requests) {
+    Request.find({'matchId': null}, function (error, requests) {
         if (!error) {
             var currentRequest = requests.find(function (request) {
                 return request._id == requestId;
-            });
+            });''
             var matchingRequest = match.findMatchingRequest(currentRequest, requests.filter(function (request) {
                 return request._id != requestId;
             }));
 
             request.body.requestIds = [currentRequest._id, matchingRequest._id];
             // Meetup location is average of the two origins
-            request.body.meetupLat = (currentRequest.originLat + matchingRequest.originLat) / 2;
-            request.body.meetupLng = (currentRequest.originLng + matchingRequest.originLng) / 2;
+            var meetupLocation = match.findMeetupLocation(currentRequest.originLat, currentRequest.originLng,
+                matchingRequest.originLat, matchingRequest.originLng);
+            request.body.meetupLat = meetupLocation[0];
+            request.body.meetupLng = meetupLocation[1];
             new Match(request.body).save(function (error, match) {
                 if (!error) {
                     currentRequest.matchId = match._id;

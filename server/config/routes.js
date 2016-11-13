@@ -1,6 +1,7 @@
 var express = require('express');
 
 var main = require('../controllers/main'),
+    markers = require('../controllers/markers'),
     matches = require('../controllers/matches'),
     requests = require('../controllers/requests'),
     users = require('../controllers/users');
@@ -89,6 +90,20 @@ module.exports = function (app) {
 
     app.delete('/matches/:_id', function (request, response, next) {
         matches.remove(request, response, next);
+    });
+
+    // Markers
+
+    app.get('/markers', function (request, response, next) {
+        markers.all(request, response, next);
+    });
+
+    app.get('/markers/:_id', function (request, response, next) {
+        markers.one(request, response, next);
+    });
+
+    app.get('/markers/update', function (request, response, next) {
+        markers.fetch(request, response, next);
     });
 
 };
