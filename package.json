@@ -2,12 +2,9 @@
   "name": "bSafe",
   "version": "0.0.1",
   "description": "Web API for bSafe App",
-  "repository": "",
+  "repository": "https://github.com/tryuan99/bSafe-Web-API.git",
   "main": "server.js",
   "author": "Ashvin, Enrique, Jacob, Jonathan, Titan",
-  "engines": {
-    "node": "6.x"
-  },
   "dependencies": {
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
