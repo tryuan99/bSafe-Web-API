@@ -10,7 +10,7 @@ var mongoose = require('mongoose'),
  * @param {function} next Callback
  */
 exports.all = function (request, response, next) {
-    User.find({}, {'email': 0, 'password': 0}, function (error, data) {
+    User.find({}, '_id firstName lastName', function (error, data) {
         http.genResponse(response, error, data, next);
     });
 };
@@ -28,7 +28,7 @@ exports.one = function (request, response, next) {
     }
 
     var id = request.params['_id'];
-    User.findById(id, {'email': 0, 'password': 0}, function (error, data) {
+    User.findById(id, '_id firstName lastName', function (error, data) {
         http.genResponse(response, error, data, next);
     });
 };
@@ -99,7 +99,7 @@ exports.login = function (request, response, next) {
 
     var email = request.body['email'],
         password = request.body['password'];
-    User.findOne({'email': email, 'password': password}, {'email': 0, 'password': 0}, function (error, data) {
+    User.findOne({'email': email, 'password': password}, '_id firstName lastName', function (error, data) {
         http.genResponse(response, error, data, next);
     });
 };
