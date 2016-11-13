@@ -59,12 +59,12 @@ exports.request = function (request, response, next) {
  * @param {function} next Callback
  */
 exports.add = function (request, response, next) {
-    var error = http.checkRequestParams(request.params, ['requestId']);
+    var error = http.checkRequestParams(request.body, ['requestId']);
     if (error) {
         return next(error);
     }
 
-    var requestId = request.params['requestId'];
+    var requestId = request.body['requestId'];
     Request.find({'matchId': null}, function (error, requests) {
         if (!error) {
             var currentRequest = requests.find(function (request) {
