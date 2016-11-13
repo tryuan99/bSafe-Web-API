@@ -68,19 +68,19 @@ module.exports = function (app) {
 
     // Matches
 
-    app.get('/matches', function (request, response, next) {
-        matches.all(request, response, next);
-    });
+    // app.get('/matches', function (request, response, next) {
+    //     matches.all(request, response, next);
+    // });
+    //
+    // app.get('/matches/:_id', function (request, response, next) {
+    //     matches.one(request, response, next);
+    // });
+    //
+    // app.get('/matches/request/:requestId', function (request, response, next) {
+    //     matches.request(request, response, next);
+    // });
 
-    app.get('/matches/:_id', function (request, response, next) {
-        matches.one(request, response, next);
-    });
-
-    app.get('/matches/request/:requestId', function (request, response, next) {
-        matches.request(request, response, next);
-    });
-
-    app.post('/matches', function (request, response, next) {
+    app.get('/matches/:requestId', function (request, response, next) {
         matches.add(request, response, next);
     });
 
